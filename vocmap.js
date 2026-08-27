@@ -722,6 +722,7 @@ const utyMap = {
   Pickaxe: "镐子",
   "Hydrochloric Acid": "盐酸",
   Videotape: "录像带",
+  "Mail Whale": "邮件鲸鱼",
 
   // ==================== Undertale Yellow 未出现物品 ====================
   "Homemade Cookie": "手工饼干",
@@ -731,7 +732,6 @@ const utyMap = {
 
   // ==================== Undertale Yellow 游戏机制 ====================
   "Dimensional Box": "次元箱",
-  Mail: "邮件",
   GOLD: "金钱",
   SAVE: "存档",
   "Game Config": "设定目录",
@@ -821,7 +821,7 @@ const utyMap = {
   "Change of Plans": "計畫有變",
   "Tomorrow Means The Surface": "明天意味著地表",
   "Main Menu 5 (Steamworks)": "主選單 5 (蒸汽工廠)",
-  Meltdown: "熔毀",
+  "Meltdown": "熔毀",
   "Treading Lightly": "小心行事",
   "Enter Axis": "進入軸心",
   "Detainment 014": "拘留 014",
@@ -881,6 +881,7 @@ const utyMap = {
   "Honest Days Work": "誠實的一天工作",
   Adjourned: "休會",
   "= Description =": "= 描述 =",
+  "= Features =": "= 区域要素 =",
   "= Profile =": "= 个人档案 =",
   "= Personality =": "= 个性 =",
   "= Main Story =": "= 主要故事 =",
@@ -901,6 +902,11 @@ const utyMap = {
   "= Appears with =": "= 一起出现 =",
   "= Strategy =": "= 策略 =",
   "= Quotes =": "= 台词 =",
+  "= Map =": "= 地图 =",
+  "= Geography =": "= 地理 =",
+  "= Creation and development =": "= 创作和开发 =",
+  "= Devlogs =": "= 开发日志 =",
+  "= aftermath =": "= 余波 =",
   "Scripted Encounter": "剧情遭遇",
   "Scripted encounter": "剧情遭遇",
   Boss: "头目",
