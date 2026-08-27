@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="pageTitle">Deltarune Wiki 替换器</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            height: fit-content;
+        }
+        .mode-switcher {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+            background: #f1f4f9;
+            border-radius: 40px;
+            padding: 4px;
+            width: fit-content;
+            border: 1px solid #e2e8f0;
+        }
+        .mode-btn {
+            border: none;
+            background: transparent;
+            padding: 10px 28px;
+            border-radius: 32px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.25s;
+            color: #4a5568;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .mode-btn:hover { background: rgba(255,255,255,0.5); }
+        .mode-btn.active-dr { background: #4299e1; color: white; box-shadow: 0 4px 10px rgba(66,153,225,0.3); }
+        .mode-btn.active-uty { background: #ed8936; color: white; box-shadow: 0 4px 10px rgba(237,137,54,0.3); }
+        .mode-badge {
+            font-size: 13px;
+            background: rgba(255,255,255,0.25);
+            padding: 0 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        h1 {
+            font-size: 24px;
+            color: #1a202c;
+            margin-top: 0;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .subtitle {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 24px;
+            border-left: 4px solid #4299e1;
+            padding-left: 16px;
+            background: #ebf8ff;
+            border-radius: 0 8px 8px 0;
+            line-height: 1.6;
+        }
+        .subtitle code {
+            background: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .row { display: flex; gap: 20px; flex-wrap: wrap; }
+        .col { flex: 1 1 45%; min-width: 300px; }
+        textarea {
+            width: 100%;
+            height: 500px;
+            padding: 16px;
+            font-size: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            border: 1px solid #cbd5e0;
+            border-radius: 10px;
+            resize: vertical;
+            background: #fdfdfe;
+            transition: border 0.2s;
+            line-height: 1.7;
+        }
+        textarea:focus { outline: none; border-color: #4299e1; box-shadow: 0 0 0 3px rgba(66,153,225,0.2); }
+        .toolbar { display: flex; gap: 12px; margin: 16px 0 12px 0; flex-wrap: wrap; align-items: center; }
+        .btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 8px rgba(66,153,225,0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:hover { background: #3182ce; transform: translateY(-1px); box-shadow: 0 6px 14px rgba(66,153,225,0.3); }
+        .btn:active { transform: scale(0.97); }
+        .btn-secondary { background: #edf2f7; color: #2d3748; box-shadow: none; }
+        .btn-secondary:hover { background: #e2e8f0; box-shadow: none; }
+        .stats {
+            font-size: 14px;
+            color: #4a5568;
+            background: #f7fafc;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-left: auto;
+        }
+        .footer { margin-top: 12px; font-size: 13px; color: #a0aec0; text-align: right; }
+        @media (max-width: 700px) {
+            .container { padding: 16px; }
+            textarea { height: 300px; }
+            .col { flex: 1 1 100%; }
+            .stats { margin-left: 0; width: 100%; text-align: left; }
+            .mode-switcher { width: 100%; justify-content: center; }
+            .mode-btn { flex: 1; justify-content: center; padding: 10px 12px; font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="mode-switcher">
+        <button class="mode-btn active-dr" data-mode="dr" onclick="setMode('dr')">
+            📝 Deltarune <span class="mode-badge">DR</span>
+        </button>
+        <button class="mode-btn" data-mode="uty" onclick="setMode('uty')">
+            🤠 Undertale Yellow <span class="mode-badge">UTY</span>
+        </button>
+    </div>
+
+    <h1 id="mainTitle">📝 Deltarune Wiki 换词器</h1>
+
+    <div class="subtitle">
+        ⚡ 严格匹配整个单词/词组（前后非字母数字）· 忽略大小写 · 自动支持复数 / 过去式 / 进行时<br />
+        跳过 <code>File:</code> / <code>Image:</code> / <code>Media:</code> 文件链接 · 保护 <code>image =</code> 参数值 · 跳过 <code>&lt;gallery&gt;</code>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div style="font-weight:600; margin-bottom:6px; font-size:14px; color:#2d3748;">📥 原始文本</div>
+            <textarea id="inputText" placeholder="在此粘贴您的 Wiki 文本..."></textarea>
+        </div>
+        <div class="col">
+            <div style="font-weight:600; margin-bottom:6px; font-size:14px; color:#2d3748;">📤 替换结果</div>
+            <textarea id="outputText" placeholder="替换后的文本将显示在这里..." readonly></textarea>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <button class="btn" onclick="translateText()">▶ 开始替换</button>
+        <button class="btn btn-secondary" onclick="clearAll()">🗑 清空</button>
+        <button class="btn btn-secondary" onclick="copyResult()">📋 复制结果</button>
+        <span class="stats" id="stats">就绪</span>
+    </div>
+    <div class="footer">基于浏览器本地运行，不会上传任何数据。</div>
+</div>
+
+<script src="vocmap.js"></script>
+<script>
+    const MODES = {
+        dr: {
+            label: 'Deltarune',
+            emoji: '📝',
+            title: 'Deltarune Wiki 换词器',
+            pageTitle: 'Deltarune Wiki 换词器',
+            map: drMap,
+            btnClass: 'active-dr'
+        },
+        uty: {
+            label: 'Undertale Yellow',
+            emoji: '🤠',
+            title: 'Undertale Yellow Wiki 换词器',
+            pageTitle: 'Undertale Yellow Wiki 换词器',
+            map: utyMap,
+            btnClass: 'active-uty'
+        }
+    };
+
+    let currentMode = 'dr';
+    let currentMap = drMap;
+
+    const inputEl = document.getElementById('inputText');
+    const outputEl = document.getElementById('outputText');
+    const statsEl = document.getElementById('stats');
+    const mainTitleEl = document.getElementById('mainTitle');
+    const pageTitleEl = document.getElementById('pageTitle');
+    const modeBtns = document.querySelectorAll('.mode-btn');
+
+    function isWordChar(ch) {
+        if (!ch) return false;
+        return /[a-zA-Z0-9_]/.test(ch);
+    }
+
+    function getVariants(word) {
+        if (word.includes(' ')) return [word];
+        const variants = [word];
+        const lower = word.toLowerCase();
+
+        if (!lower.endsWith('s')) variants.push(word + 's');
+        if (lower.endsWith('s') || lower.endsWith('x') || lower.endsWith('z') ||
+            lower.endsWith('ch') || lower.endsWith('sh')) {
+            variants.push(word + 'es');
+        }
+        if (lower.endsWith('e')) {
+            variants.push(word.slice(0, -1) + 'ed');
+        } else {
+            variants.push(word + 'ed');
+        }
+        if (lower.endsWith('e')) {
+            variants.push(word.slice(0, -1) + 'ing');
+        } else {
+            variants.push(word + 'ing');
+        }
+        return [...new Set(variants)].sort((a, b) => b.length - a.length);
+    }
+
+    function buildVariantList(map) {
+        const list = [];
+        for (const key of Object.keys(map)) {
+            const variants = getVariants(key);
+            for (const variant of variants) {
+                list.push({ original: key, variant: variant, translation: map[key] });
+            }
+        }
+        list.sort((a, b) => b.variant.length - a.variant.length);
+        return list;
+    }
+
+    let variantList = null;
+
+    function setMode(mode) {
+        if (mode === currentMode) return;
+        const config = MODES[mode];
+        if (!config) return;
+
+        currentMode = mode;
+        currentMap = config.map;
+        variantList = buildVariantList(currentMap);
+
+        pageTitleEl.textContent = config.pageTitle;
+        mainTitleEl.textContent = `${config.emoji} ${config.title}`;
+
+        modeBtns.forEach(btn => {
+            const btnMode = btn.dataset.mode;
+            btn.className = 'mode-btn';
+            if (btnMode === mode) {
+                btn.classList.add(config.btnClass);
+            }
+        });
+
+        outputEl.value = '';
+        statsEl.textContent = `🔄 已切换到 ${config.label} 模式，请点击替换`;
+    }
+
+function translateText() {
+    const input = inputEl.value;
+    if (!input.trim()) {
+        outputEl.value = '';
+        statsEl.textContent = '⚠️ 请先输入文本';
+        return;
+    }
+
+    if (!variantList) {
+        variantList = buildVariantList(currentMap);
+    }
+
+    const placeholders = [];
+    const placeholderPrefix = '##PROTECTED##';
+
+    // 1. 保护 <gallery>...</gallery>
+    let text = input.replace(/<gallery>[\s\S]*?<\/gallery>/gi, (match) => {
+        placeholders.push(match);
+        return `${placeholderPrefix}${placeholders.length - 1}##`;
+  
