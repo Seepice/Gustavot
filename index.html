@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title id="pageTitle">Deltarune Wiki 替换器</title>
+    <title id="pageTitle">Deltarune Wiki 翻译器</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -153,8 +153,8 @@
     <h1 id="mainTitle">📝 Deltarune Wiki 换词器</h1>
 
     <div class="subtitle">
-        ⚡ 严格匹配整个单词/词组（前后非字母数字）· 忽略大小写 · 自动支持复数 / 过去式 / 进行时<br />
-        跳过 <code>File:</code> / <code>Image:</code> / <code>Media:</code> 文件链接 · 保护 <code>image =</code> 参数值 · 跳过 <code>&lt;gallery&gt;</code>
+        ⚡ 严格匹配整个单词/词组（前后非字母数字）· 仅首字母忽略大小写 · 标题/列表项整体忽略大小写<br />
+        跳过 <code>File:</code> / <code>Image:</code> / <code>Media:</code> 文件链接（含空格） · 保护 <code>image =</code> 参数值 · 跳过 <code>&lt;gallery&gt;</code>
     </div>
 
     <div class="row">
@@ -163,13 +163,13 @@
             <textarea id="inputText" placeholder="在此粘贴您的 Wiki 文本..."></textarea>
         </div>
         <div class="col">
-            <div style="font-weight:600; margin-bottom:6px; font-size:14px; color:#2d3748;">📤 替换结果</div>
-            <textarea id="outputText" placeholder="替换后的文本将显示在这里..." readonly></textarea>
+            <div style="font-weight:600; margin-bottom:6px; font-size:14px; color:#2d3748;">📤 翻译结果</div>
+            <textarea id="outputText" placeholder="翻译后的文本将显示在这里..." readonly></textarea>
         </div>
     </div>
 
     <div class="toolbar">
-        <button class="btn" onclick="translateText()">▶ 开始替换</button>
+        <button class="btn" onclick="translateText()">▶ 开始翻译</button>
         <button class="btn btn-secondary" onclick="clearAll()">🗑 清空</button>
         <button class="btn btn-secondary" onclick="copyResult()">📋 复制结果</button>
         <span class="stats" id="stats">就绪</span>
@@ -179,7 +179,8 @@
 
 <script src="vocmap.js"></script>
 <script>
-    const MODES = {
+    // ========== 第二半从此开始（JavaScript 代码） ==========
+        const MODES = {
         dr: {
             label: 'Deltarune',
             emoji: '📝',
@@ -271,26 +272,133 @@
         });
 
         outputEl.value = '';
-        statsEl.textContent = `🔄 已切换到 ${config.label} 模式，请点击替换`;
+        statsEl.textContent = `🔄 已切换到 ${config.label} 模式，请点击翻译`;
     }
 
-function translateText() {
-    const input = inputEl.value;
-    if (!input.trim()) {
+    function translateText() {
+        const input = inputEl.value;
+        if (!input.trim()) {
+            outputEl.value = '';
+            statsEl.textContent = '⚠️ 请先输入文本';
+            return;
+        }
+
+        if (!variantList) {
+            variantList = buildVariantList(currentMap);
+        }
+
+        const placeholders = [];
+        const placeholderPrefix = '##PROTECTED##';
+
+        // 1. 保护 <gallery>...</gallery>
+        let text = input.replace(/<gallery>[\s\S]*?<\/gallery>/gi, (match) => {
+            placeholders.push(match);
+            return `${placeholderPrefix}${placeholders.length - 1}##`;
+        });
+
+        // 2. 保护 File:/Image:/Media: 开头的文件链接（取消空格限制，匹配到 |、}、] 或行尾）
+        text = text.replace(/\b(File|Image|Media):[^|}\]]*/gi, (match) => {
+            placeholders.push(match);
+            return `${placeholderPrefix}${placeholders.length - 1}##`;
+        });
+
+        // 3. 保护 image = 参数的值（直到 | 或换行）
+        text = text.replace(/\bimage\s*=\s*[^|\n]+/gi, (match) => {
+            placeholders.push(match);
+            return `${placeholderPrefix}${placeholders.length - 1}##`;
+        });
+
+        // 4. 核心翻译（智能大小写处理）
+        let result = '';
+        let i = 0;
+        const n = text.length;
+        let replaceCount = 0;
+
+        while (i < n) {
+            let matched = false;
+            for (const item of variantList) {
+                const variant = item.variant;
+                const len = variant.length;
+                if (i + len > n) continue;
+
+                const slice = text.substring(i, i + len);
+                if (slice.length !== variant.length) continue;
+
+                // 判断首字符是否为字母
+                const firstChar = variant[0];
+                const isLetter = /[a-zA-Z]/.test(firstChar);
+
+                if (isLetter) {
+                    // 首字母忽略大小写，其余严格匹配
+                    if (slice[0].toLowerCase() !== firstChar.toLowerCase()) continue;
+                    if (slice.substring(1) !== variant.substring(1)) continue;
+                } else {
+                    // 首字符非字母（如 '='、'*' 等），整体忽略大小写
+                    if (slice.toLowerCase() !== variant.toLowerCase()) continue;
+                }
+
+                const charBefore = i === 0 ? null : text[i - 1];
+                if (charBefore !== null && isWordChar(charBefore)) continue;
+
+                const charAfter = (i + len < n) ? text[i + len] : null;
+                if (charAfter !== null && isWordChar(charAfter)) continue;
+
+                result += item.translation;
+                i += len;
+                replaceCount++;
+                matched = true;
+                break;
+            }
+
+            if (!matched) {
+                result += text[i];
+                i++;
+            }
+        }
+
+        // 5. 还原占位符（逆序，保证嵌套正确展开）
+        for (let j = placeholders.length - 1; j >= 0; j--) {
+            const placeholder = `${placeholderPrefix}${j}##`;
+            result = result.replace(placeholder, placeholders[j]);
+        }
+
+        outputEl.value = result;
+        const modeLabel = MODES[currentMode].label;
+        statsEl.textContent = `✅ ${modeLabel} 翻译完成，共替换 ${replaceCount} 个词条`;
+    }
+
+    function clearAll() {
+        inputEl.value = '';
         outputEl.value = '';
-        statsEl.textContent = '⚠️ 请先输入文本';
-        return;
+        statsEl.textContent = '已清空';
     }
 
-    if (!variantList) {
-        variantList = buildVariantList(currentMap);
+    function copyResult() {
+        const output = outputEl.value;
+        if (!output) {
+            alert('没有内容可复制！');
+            return;
+        }
+        navigator.clipboard.writeText(output).then(() => {
+            statsEl.textContent = '📋 已复制到剪贴板！';
+        }).catch(() => {
+            outputEl.select();
+            document.execCommand('copy');
+            statsEl.textContent = '📋 已复制！';
+        });
     }
 
-    const placeholders = [];
-    const placeholderPrefix = '##PROTECTED##';
+    inputEl.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'Enter') {
+            e.preventDefault();
+            translateText();
+        }
+    });
 
-    // 1. 保护 <gallery>...</gallery>
-    let text = input.replace(/<gallery>[\s\S]*?<\/gallery>/gi, (match) => {
-        placeholders.push(match);
-        return `${placeholderPrefix}${placeholders.length - 1}##`;
-  
+    window.addEventListener('DOMContentLoaded', () => {
+        setMode('dr');
+        variantList = buildVariantList(drMap);
+    });
+</script>
+</body>
+</html>
