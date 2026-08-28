@@ -174,6 +174,9 @@
         <button class="btn btn-secondary" onclick="copyResult()">📋 复制结果</button>
         <span class="stats" id="stats">就绪</span>
     </div>
+    <div class="version-info" style="margin-top:24px; padding-top:12px; border-top:1px solid #e2e8f0; font-size:13px; color:#a0aec0; text-align:center;">
+    <span id="appVersion"></span> | <span id="vocmapVersion"></span>
+    </div>
 </div>
 
 <script src="vocmap.js"></script>
@@ -207,7 +210,7 @@
     const mainTitleEl = document.getElementById('mainTitle');
     const pageTitleEl = document.getElementById('pageTitle');
     const modeBtns = document.querySelectorAll('.mode-btn');
-
+    const APP_VERSION = '1.0.0';   // 应用自身版本号
     function isWordChar(ch) {
         if (!ch) return false;
         return /[a-zA-Z0-9_]/.test(ch);
@@ -306,8 +309,18 @@
             placeholders.push(match);
             return `${placeholderPrefix}${placeholders.length - 1}##`;
         });
+        // 4. 保护 {{Cite...}} 但不是 {{Cite game}} 的块（大小写不敏感）
+        text = text.replace(/\{\{Cite\s*[^}]*\}\}/gi, function(match) {
+    // 如果匹配到的是 {{Cite game}} 或 {{Cite Game}}，则不保护，原样返回
+            if (/{{Cite\s*game/i.test(match)) {
+                return match;
+            } else {
+                placeholders.push(match);
+                return `${placeholderPrefix}${placeholders.length - 1}##`;
+            }
+        });
 
-        // 4. 核心翻译（智能大小写处理）
+        // 5. 核心替换（智能大小写处理）
         let result = '';
         let i = 0;
         const n = text.length;
@@ -355,7 +368,7 @@
             }
         }
 
-        // 5. 还原占位符（逆序，保证嵌套正确展开）
+        // 6. 还原占位符（逆序，保证嵌套正确展开）
         for (let j = placeholders.length - 1; j >= 0; j--) {
             const placeholder = `${placeholderPrefix}${j}##`;
             result = result.replace(placeholder, placeholders[j]);
@@ -396,6 +409,8 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         setMode('dr');
+        document.getElementById('appVersion').textContent = `应用版本: ${APP_VERSION}`;
+        document.getElementById('vocmapVersion').textContent = `词库版本: ${window.VOCMAP_VERSION || '未知'}`;
         variantList = buildVariantList(drMap);
     });
 </script>
