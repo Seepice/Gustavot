@@ -616,6 +616,7 @@ const utyMap = {
   "Feisty Four": "活力四人组",
   "Feisty Five": "活力五人组",
   "Dunes rabbit": "沙丘兔子",
+  "Honeydew shopkeeper": "蜜露度假村店员",
   // ==================== Undertale Yellow 地点 ====================
   Ruins: "废墟",
   "Dark Ruins": "黑暗废墟",
@@ -908,7 +909,7 @@ const utyMap = {
   "= Creation and development =": "= 创作和开发 =",
   "= Devlogs =": "= 开发日志 =",
   "= aftermath =": "= 余波 =",
-  "= Version differences =": "= 版本差异 ="
+  "= Version differences =": "= 版本差异 =",
   "Scripted Encounter": "剧情遭遇",
   "Scripted encounter": "剧情遭遇",
   Boss: "头目",
