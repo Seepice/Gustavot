@@ -615,6 +615,7 @@ const utyMap = {
   "North Star": "北极星",
   "Feisty Four": "活力四人组",
   "Feisty Five": "活力五人组",
+  "Dunes rabbit": "沙丘兔子",
   // ==================== Undertale Yellow 地点 ====================
   Ruins: "废墟",
   "Dark Ruins": "黑暗废墟",
