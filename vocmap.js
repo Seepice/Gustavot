@@ -1,3 +1,4 @@
+var VOCMAP_VERSION = '1.DR1.1/UTY1.5';   // 请根据实际版本手动更新
 const drMap = {
   // ==================== 分类（Category）名称 ====================
   Enemies: "敌人",
