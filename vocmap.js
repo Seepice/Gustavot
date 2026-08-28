@@ -908,6 +908,7 @@ const utyMap = {
   "= Creation and development =": "= 创作和开发 =",
   "= Devlogs =": "= 开发日志 =",
   "= aftermath =": "= 余波 =",
+  "= Version differences =": "= 版本差异 ="
   "Scripted Encounter": "剧情遭遇",
   "Scripted encounter": "剧情遭遇",
   Boss: "头目",
