@@ -210,7 +210,7 @@
     const mainTitleEl = document.getElementById('mainTitle');
     const pageTitleEl = document.getElementById('pageTitle');
     const modeBtns = document.querySelectorAll('.mode-btn');
-    const APP_VERSION = '1.0.0';   // 应用自身版本号
+    const APP_VERSION = '1.3.0';   // 应用自身版本号
     function isWordChar(ch) {
         if (!ch) return false;
         return /[a-zA-Z0-9_]/.test(ch);
@@ -306,6 +306,11 @@
 
         // 3. 保护 image = 参数的值（直到 | 或换行）
         text = text.replace(/\bimage\s*=\s*[^|\n]+/gi, (match) => {
+            placeholders.push(match);
+            return `${placeholderPrefix}${placeholders.length - 1}##`;
+        });
+        // 保护DR文本
+        text = text.replace(/\{\{DR文本[\s\S]*?\}\}/g, (match) => {
             placeholders.push(match);
             return `${placeholderPrefix}${placeholders.length - 1}##`;
         });
