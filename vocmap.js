@@ -1,4 +1,4 @@
-var VOCMAP_VERSION = '1.DR1.1/UTY1.5';   // 请根据实际版本手动更新
+var VOCMAP_VERSION = '1.DR1.2/UTY1.5';   // 请根据实际版本手动更新
 const drMap = {
   // ==================== 分类（Category）名称 ====================
   Enemies: "敌人",
@@ -57,7 +57,8 @@ const drMap = {
   "Flower Kingdom": "花之王国",
   Garden: "花园",
   Cliffs: "悬崖",
-  "Flower Castle (Flower Cafe)": "花之城堡 (花之咖啡馆)",
+  "Flower Castle": "花之城堡",
+  "Flower Cafe": "花之咖啡厅",
   "Top of Castle": "城堡顶层",
   Unused: "未使用",
   "Flower King": "花王",
@@ -212,7 +213,6 @@ const drMap = {
   MysteryKey: "神秘钥匙",
   BromideF: "相卡F",
   "Key (The Legend of Tenna)": "鑰匙 (Tenna傳說)",
-  Q: "Q",
   "Lancer (The Legend of Tenna)": "Lancer (Tenna傳說)",
   "Mooncloud Stone": "月雲石",
   "Power Croissant": "力量可頌",
